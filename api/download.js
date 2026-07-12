@@ -47,6 +47,7 @@ async function fetchFromUpstream(targetUrl) {
 }
 
 module.exports = async function handler(req, res) {
+console.log("MASUK HANDLER");
   res.setHeader("X-Content-Type-Options", "nosniff");
   res.setHeader("Referrer-Policy", "same-origin");
 
@@ -74,6 +75,7 @@ module.exports = async function handler(req, res) {
 
   var upstreamResponse;
   try {
+   console.log("MAU PANGGIL UPSTREAM");
     upstreamResponse = await fetchFromUpstream(validation.url.toString());
   } catch (err) {
     // Never leak stack traces / internal details to the client.
