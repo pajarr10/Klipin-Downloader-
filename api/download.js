@@ -85,11 +85,16 @@ module.exports = async function handler(req, res) {
   }
 
   if (upstreamResponse.status < 200 || upstreamResponse.status >= 300) {
-    return sendJson(res, 502, {
-      ok: false,
-      message: "TAUTAN TIDAK DAPAT DIPROSES. SERVER SUMBER MENGEMBALIKAN ERROR."
-    });
-  }
+  console.error("KLIPIN UPSTREAM HTTP ERROR:", {
+    status: upstreamResponse.status,
+    data: upstreamResponse.data
+  });
+
+  return sendJson(res, 502, {
+    ok: false,
+    message: "TAUTAN TIDAK DAPAT DIPROSES. SERVER SUMBER MENGEMBALIKAN ERROR."
+  });
+}
 
   var body = upstreamResponse.data;
   if (!body || (typeof body === "object" && Object.keys(body).length === 0)) {
