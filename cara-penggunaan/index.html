@@ -1,1 +1,118 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Cara Penggunaan — Klipin</title>
+<meta name="description" content="Panduan cara menggunakan Klipin untuk mengunduh media dari berbagai platform dalam 3 langkah.">
+<meta name="theme-color" content="#111111">
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%23262626'/%3E%3Crect x='3' y='3' width='10' height='10' fill='%235b8c3e'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="/css/style.css">
+<script src="/js/theme.js" defer></script>
+</head>
+<body>
 
+<div id="klipin-loader">
+  <div class="loader-title">PAJAR</div>
+  <div class="loader-barwrap">
+    <div class="loader-bar"><div class="loader-bar-fill" id="loader-bar-fill"></div></div>
+    <div class="loader-label">LOADING KLIPIN...</div>
+  </div>
+</div>
+
+<div id="klipin-app">
+
+<header class="mc-nav">
+  <div class="wrap mc-nav-inner">
+    <a href="/" class="mc-logo">
+      <svg viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="14" height="14" fill="#262626" stroke="#8b8b8b" stroke-width="1"/><rect x="4" y="4" width="8" height="8" fill="currentColor"/></svg>
+      KLIPIN
+    </a>
+    <nav>
+      <ul class="mc-menu">
+        <li><a href="/">MENU UTAMA</a></li>
+        <li><a href="/cara-penggunaan" class="active">CARA PENGGUNAAN</a></li>
+        <li><a href="/larangan">LARANGAN</a></li>
+        <li><a href="/adm">ADM</a></li>
+        <li><a href="#" id="theme-open-btn">TEMA</a></li>
+      </ul>
+    </nav>
+    <button class="mc-burger" id="mc-burger" aria-label="Buka menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</header>
+
+<div class="mc-mobile-menu" id="mc-mobile-menu">
+  <a href="/">MENU UTAMA</a>
+  <a href="/cara-penggunaan">CARA PENGGUNAAN</a>
+  <a href="/larangan">LARANGAN</a>
+  <a href="/adm">ADM</a>
+  <a href="#" id="theme-open-btn-mobile">TEMA</a>
+</div>
+
+<main class="wrap">
+  <a href="/" class="back-link">&#8592; KEMBALI KE MENU UTAMA</a>
+
+  <section class="page-hero">
+    <h1>CARA PENGGUNAAN</h1>
+    <p class="section-sub">3 LANGKAH DOANG, GAK RIBET</p>
+  </section>
+
+  <section class="quest-grid">
+    <div class="mc-panel quest-card">
+      <div class="quest-num">[ QUEST // 01 ]</div>
+      <h3>SALIN LINK</h3>
+      <p>Copy link video/audio dari TikTok, YouTube, Instagram, Douyin, Pinterest, CapCut, atau Spotify.</p>
+      <div class="quest-status">STATUS :: READY</div>
+    </div>
+
+    <div class="mc-panel quest-card">
+      <div class="quest-num">[ QUEST // 02 ]</div>
+      <h3>TEMPEL &amp; PROSES</h3>
+      <p>Paste ke kolom input di halaman utama, pilih kualitas kalau linknya YouTube, terus pencet &quot;Proses Sekarang&quot;.</p>
+      <div class="quest-status">STATUS :: READY</div>
+    </div>
+
+    <div class="mc-panel quest-card">
+      <div class="quest-num">[ QUEST // 03 ]</div>
+      <h3>UNDUH MEDIA</h3>
+      <p>Tunggu bentar, pratinjau bakal langsung muncul di bawah kolom input. Tinggal pencet tombol unduh.</p>
+      <div class="quest-status">STATUS :: READY</div>
+    </div>
+  </section>
+
+  <section class="tips-box">
+    <h3>TIPS CEPAT</h3>
+    <ul>
+      <li>Pastikan tautan bersifat publik.</li>
+      <li>Jangan hapus bagian penting dari URL.</li>
+      <li>Kalau gagal, coba salin ulang link dari aplikasi asli.</li>
+      <li>Kecepatan proses tergantung platform dan server sumber.</li>
+    </ul>
+  </section>
+</main>
+
+<footer class="mc-footer">
+  <div class="wrap">
+    <p>KLIPIN BUILD 1.0</p>
+    <p>DEVELOPED BY PAJAR</p>
+  </div>
+</footer>
+
+</div>
+
+<div class="theme-overlay" id="theme-overlay">
+  <div class="theme-modal">
+    <h2>OPTIONS</h2>
+    <div class="sub">THEME SETTINGS</div>
+    <div class="theme-options" id="theme-options"></div>
+    <div class="theme-modal-close">
+      <button class="mc-btn" id="theme-close-btn">TUTUP</button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
