@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Klipin — Download Media dari Satu Tautan</title>
+<meta name="description" content="Download video, audio, reels, dan media favorit dari berbagai platform dengan Klipin.">
+<meta name="theme-color" content="#111111">
+<meta property="og:title" content="Klipin — Download Media dari Satu Tautan">
+<meta property="og:description" content="Download video, audio, reels, dan media favorit dari berbagai platform dengan Klipin.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://klipin.vercel.app/">
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%23262626'/%3E%3Crect x='3' y='3' width='10' height='10' fill='%235b8c3e'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="/css/style.css">
+<script src="/js/theme.js" defer></script>
+</head>
+<body>
+
+<div id="klipin-loader">
+  <div class="loader-title">PAJAR</div>
+  <div class="loader-barwrap">
+    <div class="loader-bar"><div class="loader-bar-fill" id="loader-bar-fill"></div></div>
+    <div class="loader-label">LOADING KLIPIN...</div>
+  </div>
+</div>
+
+<div id="klipin-app">
+
+<header class="mc-nav">
+  <div class="wrap mc-nav-inner">
+    <a href="/" class="mc-logo">
+      <svg viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="14" height="14" fill="#262626" stroke="#8b8b8b" stroke-width="1"/><rect x="4" y="4" width="8" height="8" fill="currentColor"/></svg>
+      KLIPIN
+    </a>
+    <nav>
+      <ul class="mc-menu">
+        <li><a href="/" class="active">MENU UTAMA</a></li>
+        <li><a href="/cara-penggunaan">CARA PENGGUNAAN</a></li>
+        <li><a href="/larangan">LARANGAN</a></li>
+        <li><a href="/adm">ADM</a></li>
+        <li><a href="#" id="theme-open-btn">TEMA</a></li>
+      </ul>
+    </nav>
+    <button class="mc-burger" id="mc-burger" aria-label="Buka menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</header>
+
+<div class="mc-mobile-menu" id="mc-mobile-menu">
+  <a href="/">MENU UTAMA</a>
+  <a href="/cara-penggunaan">CARA PENGGUNAAN</a>
+  <a href="/larangan">LARANGAN</a>
+  <a href="/adm">ADM</a>
+  <a href="#" id="theme-open-btn-mobile">TEMA</a>
+</div>
+
+<main>
+  <section class="hero wrap">
+    <div class="hero-tag">PAJAR DOWNLOADER</div>
+    <h1><span>SATU TAUTAN</span><span>SEMUA PLATFORM</span></h1>
+    <p>UNDUH MEDIA FAVORITMU TANPA PROSES RIBET.<br>TEMPEL TAUTAN DAN BIARKAN KLIPIN MEMPROSESNYA.</p>
+
+    <div class="console">
+      <div class="mc-panel">
+        <span class="mc-label">[ INPUT MEDIA // 001 ]</span>
+        <div class="field-note">MASUKKAN TAUTAN MEDIA YANG INGIN DI DOWNLOAD</div>
+
+        <form id="downloader-form" autocomplete="off">
+          <div class="input-row">
+            <input type="url" id="media-url" class="mc-input" placeholder="https://..." required inputmode="url">
+            <button type="button" id="paste-btn" class="mc-btn">TEMPEL</button>
+          </div>
+          <div class="console-actions">
+            <button type="submit" id="process-btn" class="mc-btn primary">PROSES SEKARANG &#8595;</button>
+          </div>
+          <div class="progress-wrap" id="progress-wrap">
+            <div class="progress-fill" id="progress-fill"></div>
+          </div>
+        </form>
+
+        <div class="result-panel" id="result-panel">
+          <span class="mc-label">[ MEDIA DETECTED // READY ]</span>
+          <div id="result-body"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="platform-section wrap">
+    <h2 class="section-title">[ SUPPORTED NETWORK // 008 ]</h2>
+    <p class="section-sub">PLATFORM YANG DIDUKUNG KLIPIN SAAT INI</p>
+
+    <div class="platform-grid">
+      <div class="platform-card">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.5 3c.6 2.4 2.2 4 4.7 4.2v3.1c-1.7.1-3.2-.4-4.7-1.3v6.4c0 3.6-2.9 6.1-6.2 5.7-2.8-.3-5-2.6-5.1-5.4-.2-3.4 2.6-6.2 6-6v3.3a2.7 2.7 0 1 0 2 2.6V3h3.3z"/></svg>
+        <div>
+          <div class="p-name">TikTok</div>
+          <div class="p-desc">Tanpa watermark, HD &amp; slideshow foto</div>
+        </div>
+      </div>
+
+      <div class="platform-card">
+        <svg viewBox="0 0 24 24" fill="currentColor"><rect x="2" y="5" width="20" height="14" rx="2"/><path fill="var(--panel-dark)" d="M10 9.5v5l4.5-2.5z"/></svg>
+        <div>
+          <div class="p-name">YouTube</div>
+          <div class="p-desc">Pilih kualitas hingga 1080p, atau MP3</div>
+        </div>
+      </div>
+
+      <div class="platform-card">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
+        <div>
+          <div class="p-name">Instagram</div>
+          <div class="p-desc">Reels, video, &amp; slide foto</div>
+        </div>
+      </div>
+
+      <div class="platform-card">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M15 3c.5 2.3 2 3.9 4.5 4.1v3.1c-1.6.1-3.1-.4-4.5-1.2v6.3c0 3.5-2.8 5.9-6 5.5-2.7-.3-4.8-2.5-4.9-5.2-.2-3.3 2.5-6 5.7-5.8v3.2a2.6 2.6 0 1 0 1.9 2.5V3H15z" opacity=".55"/><path d="M17.5 3.6c.5 2.1 1.9 3.6 4.2 3.8v2.9c-1.5.1-2.9-.3-4.2-1.1v5.9c0 3.3-2.6 5.5-5.6 5.1-2.5-.3-4.5-2.3-4.6-4.9-.2-3 2.3-5.6 5.3-5.4v3c-1.1-.2-2.1.7-2 1.9.1 1 1 1.7 2 1.6 1.1-.1 1.9-1 1.9-2.1V3.6h3z"/></svg>
+        <div>
+          <div class="p-name">Douyin</div>
+          <div class="p-desc">Versi TikTok Tiongkok, tanpa watermark</div>
+        </div>
+      </div>
+
+      <div class="platform-card">
+        <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/><path fill="var(--panel-dark)" d="M13 6c-3.3 0-5.5 2.3-5.5 5.1 0 1.9 1 3.1 2 3.1.4 0 .6-.2.7-.6l.3-1.2c.1-.4 0-.5-.2-.8-.4-.5-.6-1.1-.6-1.9 0-2 1.5-3.6 3.9-3.6 2.1 0 3.5 1.3 3.5 3.1 0 2.4-1 4.4-2.6 4.4-.8 0-1.5-.7-1.3-1.6l.5-2.1c.1-.6-.2-1.1-.9-1.1-.7 0-1.3.7-1.3 1.7 0 0 0 .8.4 1.6L11 20.3c.3 1 .7 1 1.1.4.1-.2 1.7-2.4 2.2-3.9.2-.6 1-4.1 1-4.1.5.9 1.9 1.7 3.3 1.7 3.5 0 6-3.2 6-7.2C24.6 3.6 20.7.1 15.9.1c-6.1 0-9.4 4.3-9.4 8.9 0 2.1.8 3.6 2.1 4.3.2.1.4.1.5-.1.1-.2.2-.9.3-1.1.1-.3 0-.4-.1-.6-.4-.5-.7-1.4-.7-2.3 0-3 2.2-5.9 6-5.9z" transform="scale(.55) translate(3,3)"/></svg>
+        <div>
+          <div class="p-name">Pinterest</div>
+          <div class="p-desc">Video &amp; gambar pin</div>
+        </div>
+      </div>
+
+      <div class="platform-card">
+        <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/><path fill="var(--panel-dark)" d="M13.5 8H15V5.5h-1.8C11 5.5 9.8 6.9 9.8 9v1.5H8V13h1.8v6h2.5v-6H14l.4-2.5h-2.1V9.2c0-.7.3-1.2 1.2-1.2z"/></svg>
+        <div>
+          <div class="p-name">Facebook</div>
+          <div class="p-desc">Video publik &amp; reels</div>
+        </div>
+      </div>
+
+      <div class="platform-card">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M8 9l3 3-3 3M13 15h3"/></svg>
+        <div>
+          <div class="p-name">CapCut</div>
+          <div class="p-desc">Template &amp; hasil ekspor</div>
+        </div>
+      </div>
+
+      <div class="platform-card">
+        <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/><path fill="var(--panel-dark)" d="M7 10.4c2.9-.9 6.6-.7 9.1.8.3.2.3.6.1.9-.2.3-.6.3-.9.1-2.2-1.3-5.5-1.5-8.1-.7-.4.1-.7-.1-.8-.4-.1-.4.1-.6.6-.7zm-.2 2.8c2.5-.7 5.9-.6 8.2.7.3.2.4.5.2.8-.2.3-.5.3-.8.2-2-.9-5.1-1.1-7.4-.5-.3.1-.6-.1-.7-.4-.1-.3.1-.6.5-.8zm-.1 2.7c2.1-.6 5-.5 6.9.5.3.1.4.4.2.6-.1.3-.4.3-.6.2-1.7-.9-4.3-1-6.1-.4-.2.1-.5 0-.5-.2-.1-.2 0-.5.1-.7z"/></svg>
+        <div>
+          <div class="p-name">Spotify</div>
+          <div class="p-desc">Trek audio kualitas tinggi</div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="mc-footer">
+  <div class="wrap">
+    <p>KLIPIN BUILD 1.0</p>
+    <p>DEVELOPED BY PAJAR</p>
+  </div>
+</footer>
+
+</div>
+
+<div class="mc-dialog-overlay" id="error-dialog">
+  <div class="mc-dialog">
+    <h3>[ PROCESS FAILED ]</h3>
+    <p id="error-dialog-msg">TAUTAN TIDAK DAPAT DIPROSES.<br>COBA PERIKSA KEMBALI TAUTANMU.</p>
+    <button class="mc-btn danger" id="error-dialog-close">TUTUP</button>
+  </div>
+</div>
+
+<div class="theme-overlay" id="theme-overlay">
+  <div class="theme-modal">
+    <h2>OPTIONS</h2>
+    <div class="sub">THEME SETTINGS</div>
+    <div class="theme-options" id="theme-options"></div>
+    <div class="theme-modal-close">
+      <button class="mc-btn" id="theme-close-btn">TUTUP</button>
+    </div>
+  </div>
+</div>
+
+<div class="install-toast" id="install-toast">
+  <p>KLIPIN TERASA LEBIH CEPAT LEWAT APLIKASI RESMI. PASANG SEKARANG?</p>
+  <div class="toast-actions">
+    <button class="mc-btn primary" id="install-toast-btn">UNDUH</button>
+    <button class="mc-btn" id="install-toast-close">X</button>
+  </div>
+</div>
+
+<script src="/js/main.js" defer></script>
+<script src="/js/pwa.js" defer></script>
+</body>
+</html>

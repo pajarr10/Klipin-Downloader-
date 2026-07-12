@@ -1,0 +1,24 @@
+{
+  "name": "Klipin",
+  "short_name": "Klipin",
+  "description": "Download video, audio, reels, dan media favorit dari berbagai platform dengan Klipin.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#111111",
+  "theme_color": "#111111",
+  "lang": "id",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' fill='%23111111'/%3E%3Crect x='24' y='24' width='144' height='144' fill='%23262626' stroke='%238b8b8b' stroke-width='6'/%3E%3Crect x='60' y='60' width='72' height='72' fill='%235b8c3e'/%3E%3C/svg%3E",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' fill='%23111111'/%3E%3Crect x='64' y='64' width='384' height='384' fill='%23262626' stroke='%238b8b8b' stroke-width='16'/%3E%3Crect x='160' y='160' width='192' height='192' fill='%235b8c3e'/%3E%3C/svg%3E",
+      "sizes": "512x512",
+      "type": "image/svg+xml"
+    }
+  ]
+}
