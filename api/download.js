@@ -98,7 +98,11 @@ console.log("MASUK HANDLER");
   });
 }
 
-  var body = upstreamResponse.data;
+  var body = upstreamResponse.data; 
+  return sendJson(res, 200, {
+  ok: true,
+  debug: body
+});
   if (!body || (typeof body === "object" && Object.keys(body).length === 0)) {
     return sendJson(res, 502, { ok: false, message: "RESPON KOSONG DARI SERVER SUMBER." });
   }
