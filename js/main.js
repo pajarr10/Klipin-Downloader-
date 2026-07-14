@@ -1,5 +1,8 @@
 /* KLIPIN — main.js
-   Handles: link input, paste button, download request, safe result rendering. */
+   Handles: link input, paste button, download request, safe result rendering.
+   Matches API contract:
+   { status, platform, title, thumbnail, author:{username,name,avatar}, media:[{type,quality,size,url}], statistics:{...}, duration:... }
+   On failure: { status:false, message } */
 
 (function () {
   "use strict";
@@ -31,10 +34,14 @@
       }
     }
 
+    function hasText(v) {
+      return typeof v === "string" && v.trim().length > 0;
+    }
+
     function el(tag, className, text) {
       var n = document.createElement(tag);
       if (className) n.className = className;
-      if (text !== undefined && text !== null) n.textContent = text;
+      if (hasText(text)) n.textContent = text;
       return n;
     }
 
@@ -100,14 +107,56 @@
       resultPanel.classList.remove("show", "reveal");
     }
 
-    function renderMediaList(medias) {
+    function showEmptyState() {
+      resultBody.appendChild(el("p", "empty-state", "TIDAK ADA MEDIA YANG DAPAT DIUNDUH DARI TAUTAN INI."));
+    }
+
+    function typeLabel(type) {
+      var t = (type || "").toLowerCase();
+      if (t.indexOf("audio") !== -1) return "AUDIO";
+      if (t.indexOf("photo") !== -1 || t.indexOf("image") !== -1) return "FOTO";
+      if (t.indexOf("video") !== -1) return "VIDEO";
+      return hasText(type) ? type.toUpperCase() : "MEDIA";
+    }
+
+    function formatDuration(ms) {
+      if (!ms || typeof ms !== "number") return null;
+      var totalSeconds = Math.floor(ms / 1000);
+      var hours = Math.floor(totalSeconds / 3600);
+      var minutes = Math.floor((totalSeconds % 3600) / 60);
+      var seconds = totalSeconds % 60;
+
+      if (hours > 0) {
+        return hours + ":" + String(minutes).padStart(2, "0") + ":" + String(seconds).padStart(2, "0");
+      }
+      return minutes + ":" + String(seconds).padStart(2, "0");
+    }
+
+    function formatNumber(n) {
+      if (n === null || n === undefined) return null;
+      n = Number(n);
+      if (!isFinite(n)) return null;
+      return n.toLocaleString("id-ID");
+    }
+
+    function renderMediaList(media) {
       var list = el("div", "media-list");
-      medias.forEach(function (m) {
-        if (!m || !m.url) return;
+      media.forEach(function (m) {
+        if (!m || !hasText(m.url)) return;
+
         var item = el("div", "media-item");
         var info = el("div", "media-info");
-        info.appendChild(el("span", "media-kind", (m.type || "MEDIA").toUpperCase()));
-        if (m.label) info.appendChild(el("span", "media-sub", String(m.label).toUpperCase()));
+
+        info.appendChild(el("span", "media-kind", typeLabel(m.type)));
+
+        var subParts = [];
+        if (hasText(m.quality)) subParts.push(m.quality);
+        if (hasText(m.size)) subParts.push(m.size);
+        if (m.width && m.height) subParts.push(m.width + "x" + m.height);
+        if (subParts.length) {
+          info.appendChild(el("span", "media-sub", subParts.join(" \u00b7 ")));
+        }
+
         item.appendChild(info);
 
         var a = document.createElement("a");
@@ -115,7 +164,7 @@
         a.target = "_blank";
         a.rel = "noopener noreferrer";
         a.className = "mc-btn primary";
-        a.textContent = "UNDUH MEDIA \u2193";
+        a.textContent = "UNDUH \u2193";
         a.setAttribute("download", "");
         item.appendChild(a);
 
@@ -124,53 +173,112 @@
       return list;
     }
 
-    function renderPhotoGrid(photos) {
-      var grid = el("div", "photo-grid");
-      photos.forEach(function (p) {
-        var url = typeof p === "string" ? p : p && p.url;
-        if (!url) return;
-        var img = document.createElement("img");
-        img.loading = "lazy";
-        img.src = url;
-        img.alt = "Media preview";
-        grid.appendChild(img);
-      });
-      return grid;
+    function renderAuthor(author) {
+      if (!author || typeof author !== "object") return null;
+      var name = hasText(author.name) ? author.name : null;
+      var username = hasText(author.username) ? author.username : null;
+      if (!name && !username) return null;
+
+      var row = el("div", "author-row");
+      if (hasText(author.avatar)) {
+        var avatar = document.createElement("img");
+        avatar.className = "author-avatar";
+        avatar.src = author.avatar;
+        avatar.alt = "Author avatar";
+        avatar.loading = "lazy";
+        avatar.onerror = function () {
+          avatar.style.display = "none";
+        };
+        row.appendChild(avatar);
+      }
+      var textWrap = el("div", "author-text");
+      if (name) textWrap.appendChild(el("div", "author-name", name));
+      if (username) textWrap.appendChild(el("div", "author-username", "@" + username.replace(/^@/, "")));
+      row.appendChild(textWrap);
+      return row;
+    }
+
+    function renderStatistics(stats) {
+      if (!stats || typeof stats !== "object") return null;
+
+      var hasAnyStats = false;
+      for (var key in stats) {
+        if (stats.hasOwnProperty(key) && stats[key] !== null) {
+          hasAnyStats = true;
+          break;
+        }
+      }
+
+      if (!hasAnyStats) return null;
+
+      var statsMap = {
+        views: "Ditonton",
+        likes: "Disukai",
+        comments: "Komentar",
+        shares: "Dibagikan",
+        downloads: "Diunduh",
+        favorites: "Disimpan"
+      };
+
+      var container = el("div", "statistics-row");
+      for (var statKey in statsMap) {
+        if (statsMap.hasOwnProperty(statKey)) {
+          var value = stats[statKey];
+          if (value !== null && value !== undefined) {
+            var stat = el("div", "stat-item");
+            stat.appendChild(el("span", "stat-value", formatNumber(value)));
+            stat.appendChild(el("span", "stat-label", statsMap[statKey]));
+            container.appendChild(stat);
+          }
+        }
+      }
+
+      return container;
     }
 
     function renderResult(data) {
       clearResult();
 
       var head = el("div", "result-head");
-      if (data.thumbnail) {
+
+      if (hasText(data.thumbnail)) {
         var thumb = document.createElement("img");
         thumb.className = "result-thumb";
         thumb.src = data.thumbnail;
         thumb.alt = "Thumbnail";
         thumb.loading = "lazy";
+        thumb.onerror = function () {
+          thumb.remove();
+        };
         head.appendChild(thumb);
       }
+
       var meta = el("div", "result-meta");
-      if (data.title) {
+      if (hasText(data.title)) {
         meta.appendChild(el("h3", null, data.title));
       }
-      if (data.platform) {
-        meta.appendChild(el("div", "meta-line", "PLATFORM :: " + data.platform.toUpperCase()));
+      if (hasText(data.platform)) {
+        var platformLine = "PLATFORM :: " + data.platform.toUpperCase();
+        if (data.duration) {
+          var durationStr = formatDuration(data.duration);
+          if (durationStr) platformLine += " \u00b7 " + durationStr;
+        }
+        meta.appendChild(el("div", "meta-line", platformLine));
       }
-      if (data.author) {
-        meta.appendChild(el("div", "meta-line", "AUTHOR :: " + data.author));
-      }
+      var authorRow = renderAuthor(data.author);
+      if (authorRow) meta.appendChild(authorRow);
+
+      var statsRow = renderStatistics(data.statistics);
+      if (statsRow) meta.appendChild(statsRow);
+
       head.appendChild(meta);
       resultBody.appendChild(head);
 
-      if (Array.isArray(data.photos) && data.photos.length) {
-        resultBody.appendChild(renderPhotoGrid(data.photos));
-      }
-
-      if (Array.isArray(data.medias) && data.medias.length) {
-        resultBody.appendChild(renderMediaList(data.medias));
-      } else if (!Array.isArray(data.photos) || !data.photos.length) {
-        resultBody.appendChild(el("p", null, "TIDAK ADA MEDIA YANG DAPAT DIUNDUH DARI TAUTAN INI."));
+      var media = Array.isArray(data.media) ? data.media.filter(function (m) { return m && hasText(m.url); }) : [];
+      if (media.length) {
+        resultBody.appendChild(renderMediaList(media));
+      } else {
+        showEmptyState();
       }
 
       resultPanel.classList.add("show");
@@ -209,7 +317,7 @@
               throw new Error("RESPON SERVER TIDAK VALID.");
             })
             .then(function (body) {
-              if (!res.ok || !body || body.ok === false) {
+              if (!res.ok || !body || body.status === false) {
                 var msg = (body && body.message) || "TAUTAN TIDAK DAPAT DIPROSES.";
                 throw new Error(msg);
               }
@@ -217,7 +325,7 @@
             });
         })
         .then(function (body) {
-          renderResult(body.data || body);
+          renderResult(body);
         })
         .catch(function (err) {
           showDialog(
