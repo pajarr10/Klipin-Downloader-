@@ -2,117 +2,108 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Cara Penggunaan — Klipin</title>
-<meta name="description" content="Panduan cara menggunakan Klipin untuk mengunduh media dari berbagai platform dalam 3 langkah.">
+<meta name="description" content="Panduan 3 langkah menggunakan Klipin untuk mengunduh media dari berbagai platform.">
 <meta name="theme-color" content="#111111">
 <link rel="manifest" href="/manifest.json">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%23262626'/%3E%3Crect x='3' y='3' width='10' height='10' fill='%235b8c3e'/%3E%3C/svg%3E">
+<link rel="icon" href="data:,">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/css/style.css">
-<script src="/js/theme.js" defer></script>
 </head>
 <body>
 
-<div id="klipin-loader">
-  <div class="loader-title">PAJAR</div>
-  <div class="loader-barwrap">
-    <div class="loader-bar"><div class="loader-bar-fill" id="loader-bar-fill"></div></div>
-    <div class="loader-label">LOADING KLIPIN...</div>
+<div id="loading-screen">
+  <div class="loading-title">PAJAR</div>
+  <div class="loading-bar-track">
+    <div class="loading-bar-fill"></div>
   </div>
+  <div class="loading-caption">KLIPIN BUILD 1.0</div>
 </div>
 
-<div id="klipin-app">
-
-<header class="mc-nav">
-  <div class="wrap mc-nav-inner">
-    <a href="/" class="mc-logo">
-      <svg viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="14" height="14" fill="#262626" stroke="#8b8b8b" stroke-width="1"/><rect x="4" y="4" width="8" height="8" fill="currentColor"/></svg>
-      KLIPIN
-    </a>
-    <nav>
-      <ul class="mc-menu">
-        <li><a href="/">MENU UTAMA</a></li>
-        <li><a href="/cara-penggunaan" class="active">CARA PENGGUNAAN</a></li>
-        <li><a href="/larangan">LARANGAN</a></li>
-        <li><a href="/adm">ADM</a></li>
-        <li><a href="#" id="theme-open-btn">TEMA</a></li>
-      </ul>
+<header class="navbar">
+  <div class="navbar-inner">
+    <div class="logo">KLIPIN</div>
+    <nav class="nav-links">
+      <a class="nav-link" href="/">MENU UTAMA</a>
+      <a class="nav-link active" href="/cara-penggunaan">CARA PENGGUNAAN</a>
+      <a class="nav-link" href="/larangan">LARANGAN</a>
+      <a class="nav-link" href="/adm">ADM</a>
+      <button class="nav-link" id="theme-open-btn" type="button">TEMA</button>
     </nav>
-    <button class="mc-burger" id="mc-burger" aria-label="Buka menu" aria-expanded="false">
-      <span></span><span></span><span></span>
-    </button>
+    <button class="nav-toggle" id="nav-toggle" type="button" aria-label="Buka menu">≡</button>
   </div>
 </header>
 
-<div class="mc-mobile-menu" id="mc-mobile-menu">
-  <a href="/">MENU UTAMA</a>
-  <a href="/cara-penggunaan">CARA PENGGUNAAN</a>
-  <a href="/larangan">LARANGAN</a>
-  <a href="/adm">ADM</a>
-  <a href="#" id="theme-open-btn-mobile">TEMA</a>
+<div class="mobile-menu" id="mobile-menu">
+  <div class="mobile-menu-panel">
+    <a class="nav-link" href="/">MENU UTAMA</a>
+    <a class="nav-link active" href="/cara-penggunaan">CARA PENGGUNAAN</a>
+    <a class="nav-link" href="/larangan">LARANGAN</a>
+    <a class="nav-link" href="/adm">ADM</a>
+    <button class="nav-link" id="theme-open-btn-mobile" type="button" onclick="document.getElementById('theme-open-btn').click()">TEMA</button>
+  </div>
 </div>
 
-<main class="wrap">
-  <a href="/" class="back-link">&#8592; KEMBALI KE MENU UTAMA</a>
+<main class="container">
+  <a class="back-link" href="/">&lt; KEMBALI KE MENU UTAMA</a>
 
-  <section class="page-hero">
-    <h1>CARA PENGGUNAAN</h1>
-    <p class="section-sub">3 LANGKAH DOANG, GAK RIBET</p>
-  </section>
+  <h1 class="page-heading">CARA PENGGUNAAN</h1>
+  <p class="page-sub">3 LANGKAH DOANG, GAK RIBET</p>
 
-  <section class="quest-grid">
-    <div class="mc-panel quest-card">
-      <div class="quest-num">[ QUEST // 01 ]</div>
-      <h3>SALIN LINK</h3>
-      <p>Copy link video/audio dari TikTok, YouTube, Instagram, Douyin, Pinterest, CapCut, atau Spotify.</p>
-      <div class="quest-status">STATUS :: READY</div>
+  <div class="quest-list">
+
+    <div class="quest-step panel pixel-corners">
+      <div class="quest-number">01</div>
+      <div class="quest-title">SALIN LINK</div>
+      <p class="quest-desc">Copy link video/audio dari TikTok, YouTube, Instagram, Douyin, Pinterest, CapCut, atau Spotify.</p>
+      <div class="quest-status">[ QUEST // 01 ] STATUS :: READY</div>
     </div>
 
-    <div class="mc-panel quest-card">
-      <div class="quest-num">[ QUEST // 02 ]</div>
-      <h3>TEMPEL &amp; PROSES</h3>
-      <p>Paste ke kolom input di halaman utama, pilih kualitas kalau linknya YouTube, terus pencet &quot;Proses Sekarang&quot;.</p>
-      <div class="quest-status">STATUS :: READY</div>
+    <div class="quest-step panel pixel-corners">
+      <div class="quest-number">02</div>
+      <div class="quest-title">TEMPEL &amp; PROSES</div>
+      <p class="quest-desc">Paste ke kolom input di halaman utama, pilih kualitas kalau linknya YouTube, terus pencet "Proses Sekarang".</p>
+      <div class="quest-status">[ QUEST // 02 ] STATUS :: READY</div>
     </div>
 
-    <div class="mc-panel quest-card">
-      <div class="quest-num">[ QUEST // 03 ]</div>
-      <h3>UNDUH MEDIA</h3>
-      <p>Tunggu bentar, pratinjau bakal langsung muncul di bawah kolom input. Tinggal pencet tombol unduh.</p>
-      <div class="quest-status">STATUS :: READY</div>
+    <div class="quest-step panel pixel-corners">
+      <div class="quest-number">03</div>
+      <div class="quest-title">UNDUH MEDIA</div>
+      <p class="quest-desc">Tunggu bentar, pratinjau bakal langsung muncul di bawah kolom input. Tinggal pencet tombol unduh.</p>
+      <div class="quest-status">[ QUEST // 03 ] STATUS :: READY</div>
     </div>
-  </section>
 
-  <section class="tips-box">
-    <h3>TIPS CEPAT</h3>
-    <ul>
-      <li>Pastikan tautan bersifat publik.</li>
-      <li>Jangan hapus bagian penting dari URL.</li>
-      <li>Kalau gagal, coba salin ulang link dari aplikasi asli.</li>
-      <li>Kecepatan proses tergantung platform dan server sumber.</li>
-    </ul>
+  </div>
+
+  <section style="margin-top:40px;">
+    <div class="panel-label">TIPS CEPAT</div>
+    <div class="panel">
+      <ul style="display:flex;flex-direction:column;gap:10px;font-size:12px;">
+        <li>— Pastikan tautan bersifat publik.</li>
+        <li>— Jangan hapus bagian penting dari URL.</li>
+        <li>— Kalau gagal, coba salin ulang link dari aplikasi asli.</li>
+        <li>— Kecepatan proses tergantung platform dan server sumber.</li>
+      </ul>
+    </div>
   </section>
 </main>
 
-<footer class="mc-footer">
-  <div class="wrap">
-    <p>KLIPIN BUILD 1.0</p>
-    <p>DEVELOPED BY PAJAR</p>
-  </div>
+<footer class="footer container">
+  <div>KLIPIN BUILD 1.0 // DEVELOPER BY PAJAR</div>
 </footer>
 
+<div class="options-overlay" id="options-overlay">
+  <div class="options-title">OPTIONS</div>
+  <div class="options-sub">THEME SETTINGS</div>
+  <div class="theme-grid"></div>
+  <button class="pixel-btn" id="options-close-btn" type="button">TUTUP</button>
 </div>
 
-<div class="theme-overlay" id="theme-overlay">
-  <div class="theme-modal">
-    <h2>OPTIONS</h2>
-    <div class="sub">THEME SETTINGS</div>
-    <div class="theme-options" id="theme-options"></div>
-    <div class="theme-modal-close">
-      <button class="mc-btn" id="theme-close-btn">TUTUP</button>
-    </div>
-  </div>
-</div>
-
+<script src="/js/theme.js"></script>
+<script src="/js/pwa.js"></script>
+<script src="/js/main.js"></script>
 </body>
 </html>
