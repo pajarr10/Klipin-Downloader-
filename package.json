@@ -1,16 +1,17 @@
 {
   "name": "klipin",
-  "version": "2.0.0",
-  "description": "Klipin — Universal media downloader dengan tema UI Minecraft. Developer: PAJAR.",
+  "version": "1.0.0",
+  "description": "KLIPIN - Universal media downloader with Minecraft Java Edition themed UI",
   "private": true,
   "engines": {
-    "node": ">=20.18.1"
+    "node": ">=18.x"
   },
   "scripts": {
-    "start": "node server.js",
-    "dev": "node server.js",
-    "build": "echo \"static build, nothing to compile\"",
-    "set-telegram-webhook": "node scripts/set-telegram-webhook.js"
+    "dev": "vercel dev",
+    "build": "echo \"static build, nothing to compile\""
   },
-  "dependencies": {}
+  "dependencies": {
+    "axios": "^1.7.7",
+    "@upstash/redis": "^1.34.3"
+  }
 }

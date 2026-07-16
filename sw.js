@@ -1,4 +1,9 @@
-"use strict";
+/* =========================================================
+   KLIPIN — sw.js
+   Minimal service worker: caches the static app shell for
+   faster repeat loads. Never intercepts /api requests, so the
+   downloader always hits the network directly.
+   ========================================================= */
 
 var CACHE_NAME = "klipin-cache-v1";
 var APP_SHELL = [
@@ -11,13 +16,15 @@ var APP_SHELL = [
   "/js/theme.js",
   "/js/pwa.js",
   "/js/adm.js",
-  "/manifest.json"
+  "/manifest.json",
 ];
 
 self.addEventListener("install", function (event) {
   event.waitUntil(
     caches.open(CACHE_NAME).then(function (cache) {
-      return cache.addAll(APP_SHELL);
+      return cache.addAll(APP_SHELL).catch(function () {
+        // Some assets (e.g. fonts not yet added) may fail; don't block install.
+      });
     })
   );
   self.skipWaiting();
@@ -41,31 +48,34 @@ self.addEventListener("activate", function (event) {
 });
 
 self.addEventListener("fetch", function (event) {
-  var req = event.request;
+  var url = new URL(event.request.url);
 
-  // Never cache API requests — always go to network.
-  if (req.url.indexOf("/api/") !== -1) {
+  // Never cache or intercept API calls — downloader must always be live.
+  if (url.pathname.startsWith("/api/")) {
     return;
   }
 
-  if (req.method !== "GET") return;
+  if (event.request.method !== "GET") {
+    return;
+  }
 
   event.respondWith(
-    caches.match(req).then(function (cached) {
-      var networkFetch = fetch(req)
-        .then(function (res) {
-          if (res && res.ok) {
-            var resClone = res.clone();
+    caches.match(event.request).then(function (cached) {
+      if (cached) return cached;
+
+      return fetch(event.request)
+        .then(function (response) {
+          if (response && response.status === 200) {
+            var responseClone = response.clone();
             caches.open(CACHE_NAME).then(function (cache) {
-              cache.put(req, resClone);
+              cache.put(event.request, responseClone);
             });
           }
-          return res;
+          return response;
         })
         .catch(function () {
           return cached;
         });
-      return cached || networkFetch;
     })
   );
 });
