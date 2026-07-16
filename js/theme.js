@@ -1,167 +1,109 @@
-/* KLIPIN — theme.js
-   Handles: intro loading screen, theme persistence, theme modal, mobile menu. */
+/* =========================================================
+   KLIPIN — theme.js
+   Handles theme selection, persistence (localStorage), and the
+   fullscreen OPTIONS / THEME SETTINGS panel.
+   ========================================================= */
 
 (function () {
   "use strict";
 
-  var THEME_KEY = "klipin_theme";
-  var VALID_THEMES = ["abu", "hitam", "putih", "merah", "hijau", "cokelat"];
-  var THEME_LABELS = {
-    abu: "MINECRAFT ABU-ABU",
-    hitam: "MINECRAFT HITAM",
-    putih: "MINECRAFT PUTIH",
-    merah: "MINECRAFT MERAH",
-    hijau: "MINECRAFT HIJAU",
-    cokelat: "MINECRAFT COKELAT"
-  };
-  var THEME_SWATCH = {
-    abu: "#8b8b8b",
-    hitam: "#3a3a3a",
-    putih: "#eceae2",
-    merah: "#c93b3b",
-    hijau: "#5b8c3e",
-    cokelat: "#8a5a2b"
-  };
+  var STORAGE_KEY = "klipin_theme";
+  var DEFAULT_THEME = "abu-abu";
+
+  var THEMES = [
+    { id: "abu-abu", label: "MINECRAFT ABU-ABU" },
+    { id: "hitam", label: "MINECRAFT HITAM" },
+    { id: "putih", label: "MINECRAFT PUTIH" },
+    { id: "merah", label: "MINECRAFT MERAH" },
+    { id: "hijau", label: "MINECRAFT HIJAU" },
+    { id: "cokelat", label: "MINECRAFT COKELAT" },
+  ];
+
+  function applyTheme(themeId) {
+    if (themeId === "abu-abu") {
+      document.documentElement.removeAttribute("data-theme");
+    } else {
+      document.documentElement.setAttribute("data-theme", themeId);
+    }
+  }
 
   function getStoredTheme() {
     try {
-      var t = localStorage.getItem(THEME_KEY);
-      return VALID_THEMES.indexOf(t) !== -1 ? t : "abu";
-    } catch (e) {
-      return "abu";
+      return window.localStorage.getItem(STORAGE_KEY) || DEFAULT_THEME;
+    } catch (err) {
+      return DEFAULT_THEME;
     }
   }
 
-  function applyTheme(theme) {
-    if (VALID_THEMES.indexOf(theme) === -1) theme = "abu";
-    if (theme === "abu") {
-      document.documentElement.removeAttribute("data-theme");
-    } else {
-      document.documentElement.setAttribute("data-theme", theme);
-    }
+  function setStoredTheme(themeId) {
     try {
-      localStorage.setItem(THEME_KEY, theme);
-    } catch (e) {}
-    var meta = document.querySelector('meta[name="theme-color"]');
-    if (meta) {
-      var bg = getComputedStyle(document.documentElement).getPropertyValue("--bg").trim();
-      if (bg) meta.setAttribute("content", bg);
+      window.localStorage.setItem(STORAGE_KEY, themeId);
+    } catch (err) {
+      /* localStorage unavailable, theme just won't persist */
     }
-    document.querySelectorAll(".theme-opt").forEach(function (btn) {
-      btn.setAttribute("aria-pressed", btn.dataset.theme === theme ? "true" : "false");
+  }
+
+  function buildOptionsPanel() {
+    var overlay = document.getElementById("options-overlay");
+    if (!overlay) return;
+
+    var grid = overlay.querySelector(".theme-grid");
+    if (!grid) return;
+
+    grid.innerHTML = "";
+
+    var current = getStoredTheme();
+
+    THEMES.forEach(function (theme) {
+      var el = document.createElement("div");
+      el.className = "theme-option panel";
+      el.textContent = theme.label;
+      el.dataset.themeId = theme.id;
+      if (theme.id === current) {
+        el.classList.add("active");
+      }
+      el.addEventListener("click", function () {
+        applyTheme(theme.id);
+        setStoredTheme(theme.id);
+        grid.querySelectorAll(".theme-option").forEach(function (node) {
+          node.classList.remove("active");
+        });
+        el.classList.add("active");
+      });
+      grid.appendChild(el);
     });
   }
 
-  // Apply theme immediately (before paint) to avoid flash.
+  function initThemeMenu() {
+    var overlay = document.getElementById("options-overlay");
+    var openBtn = document.getElementById("theme-open-btn");
+    var closeBtn = document.getElementById("options-close-btn");
+
+    if (openBtn && overlay) {
+      openBtn.addEventListener("click", function () {
+        buildOptionsPanel();
+        overlay.classList.add("show");
+      });
+    }
+
+    if (closeBtn && overlay) {
+      closeBtn.addEventListener("click", function () {
+        overlay.classList.remove("show");
+      });
+    }
+
+    if (overlay) {
+      overlay.addEventListener("click", function (evt) {
+        if (evt.target === overlay) {
+          overlay.classList.remove("show");
+        }
+      });
+    }
+  }
+
+  // Apply the persisted theme immediately (before DOMContentLoaded) to
+  // avoid a flash of the default theme.
   applyTheme(getStoredTheme());
 
-  document.addEventListener("DOMContentLoaded", function () {
-    /* ---------------- Loading screen ---------------- */
-    var loader = document.getElementById("klipin-loader");
-    var app = document.getElementById("klipin-app");
-    var bar = document.getElementById("loader-bar-fill");
-
-    var alreadySeen = false;
-    try {
-      alreadySeen = sessionStorage.getItem("klipin_intro_seen") === "1";
-    } catch (e) {}
-
-    function revealApp() {
-      if (app) app.classList.add("show");
-    }
-
-    if (loader) {
-      if (alreadySeen) {
-        loader.classList.add("hide");
-        revealApp();
-      } else {
-        requestAnimationFrame(function () {
-          if (bar) bar.style.width = "100%";
-        });
-        var duration = 2100;
-        window.setTimeout(function () {
-          loader.classList.add("hide");
-          revealApp();
-          try {
-            sessionStorage.setItem("klipin_intro_seen", "1");
-          } catch (e) {}
-        }, duration);
-      }
-    } else {
-      revealApp();
-    }
-
-    /* ---------------- Mobile menu ---------------- */
-    var burger = document.getElementById("mc-burger");
-    var mobileMenu = document.getElementById("mc-mobile-menu");
-    if (burger && mobileMenu) {
-      burger.addEventListener("click", function () {
-        var open = mobileMenu.classList.toggle("open");
-        burger.classList.toggle("open", open);
-        burger.setAttribute("aria-expanded", open ? "true" : "false");
-        document.body.style.overflow = open ? "hidden" : "";
-      });
-      mobileMenu.querySelectorAll("a").forEach(function (a) {
-        a.addEventListener("click", function () {
-          mobileMenu.classList.remove("open");
-          burger.classList.remove("open");
-          document.body.style.overflow = "";
-        });
-      });
-    }
-
-    /* ---------------- Theme modal ---------------- */
-    var themeBtn = document.getElementById("theme-open-btn");
-    var themeBtnMobile = document.getElementById("theme-open-btn-mobile");
-    var overlay = document.getElementById("theme-overlay");
-    var optionsWrap = document.getElementById("theme-options");
-    var closeBtn = document.getElementById("theme-close-btn");
-
-    function buildOptions() {
-      if (!optionsWrap) return;
-      optionsWrap.innerHTML = "";
-      VALID_THEMES.forEach(function (t) {
-        var btn = document.createElement("button");
-        btn.type = "button";
-        btn.className = "theme-opt";
-        btn.dataset.theme = t;
-        btn.setAttribute("aria-pressed", "false");
-        var swatch = document.createElement("span");
-        swatch.className = "swatch";
-        swatch.style.background = THEME_SWATCH[t];
-        var label = document.createElement("span");
-        label.textContent = THEME_LABELS[t];
-        btn.appendChild(swatch);
-        btn.appendChild(label);
-        btn.addEventListener("click", function () {
-          applyTheme(t);
-        });
-        optionsWrap.appendChild(btn);
-      });
-      applyTheme(getStoredTheme());
-    }
-
-    function openModal() {
-      buildOptions();
-      if (overlay) overlay.classList.add("open");
-    }
-    function closeModal() {
-      if (overlay) overlay.classList.remove("open");
-    }
-
-    if (themeBtn) themeBtn.addEventListener("click", openModal);
-    if (themeBtnMobile) themeBtnMobile.addEventListener("click", openModal);
-    if (closeBtn) closeBtn.addEventListener("click", closeModal);
-    if (overlay) {
-      overlay.addEventListener("click", function (e) {
-        if (e.target === overlay) closeModal();
-      });
-    }
-    document.addEventListener("keydown", function (e) {
-      if (e.key === "Escape") {
-        closeModal();
-        if (mobileMenu) mobileMenu.classList.remove("open");
-      }
-    });
-  });
+  document.addEventListener("DOMContentLoaded", initThemeMenu);
 })();

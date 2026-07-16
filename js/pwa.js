@@ -1,73 +1,94 @@
-/* KLIPIN — pwa.js
-   Service worker registration + custom install toast (Minecraft style). */
+/* =========================================================
+   KLIPIN — pwa.js
+   Registers the service worker and manages the custom
+   Minecraft-styled install toast (beforeinstallprompt).
+   ========================================================= */
 
 (function () {
   "use strict";
 
   var DISMISS_KEY = "klipin_pwa_dismissed_at";
-  var DISMISS_COOLDOWN_MS = 1000 * 60 * 60 * 24; // 24h
-
-  if ("serviceWorker" in navigator) {
-    window.addEventListener("load", function () {
-      navigator.serviceWorker.register("/sw.js").catch(function () {
-        /* silently ignore registration failure */
-      });
-    });
-  }
-
+  var DISMISS_COOLDOWN_MS = 1000 * 60 * 60 * 24; // 24h before asking again
   var deferredPrompt = null;
+
+  function registerServiceWorker() {
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", function () {
+        navigator.serviceWorker.register("/sw.js").catch(function () {
+          /* silent fail, PWA is a progressive enhancement */
+        });
+      });
+    }
+  }
 
   function wasRecentlyDismissed() {
     try {
-      var t = parseInt(localStorage.getItem(DISMISS_KEY) || "0", 10);
-      return Date.now() - t < DISMISS_COOLDOWN_MS;
-    } catch (e) {
+      var raw = window.localStorage.getItem(DISMISS_KEY);
+      if (!raw) return false;
+      var dismissedAt = parseInt(raw, 10);
+      if (isNaN(dismissedAt)) return false;
+      return Date.now() - dismissedAt < DISMISS_COOLDOWN_MS;
+    } catch (err) {
       return false;
     }
   }
 
-  window.addEventListener("beforeinstallprompt", function (e) {
-    e.preventDefault();
-    deferredPrompt = e;
-    if (wasRecentlyDismissed()) return;
-
-    document.addEventListener("DOMContentLoaded", showToast);
-    if (document.readyState !== "loading") showToast();
-  });
-
-  function showToast() {
-    var toast = document.getElementById("install-toast");
-    if (!toast || !deferredPrompt) return;
-    window.setTimeout(function () {
-      toast.classList.add("show");
-    }, 600);
-
-    var installBtn = document.getElementById("install-toast-btn");
-    var closeBtn = document.getElementById("install-toast-close");
-
-    if (installBtn) {
-      installBtn.addEventListener("click", function () {
-        toast.classList.remove("show");
-        if (!deferredPrompt) return;
-        deferredPrompt.prompt();
-        deferredPrompt.userChoice.finally(function () {
-          deferredPrompt = null;
-        });
-      });
-    }
-    if (closeBtn) {
-      closeBtn.addEventListener("click", function () {
-        toast.classList.remove("show");
-        try {
-          localStorage.setItem(DISMISS_KEY, String(Date.now()));
-        } catch (e) {}
-      });
+  function markDismissed() {
+    try {
+      window.localStorage.setItem(DISMISS_KEY, String(Date.now()));
+    } catch (err) {
+      /* ignore */
     }
   }
 
-  window.addEventListener("appinstalled", function () {
-    deferredPrompt = null;
-    var toast = document.getElementById("install-toast");
-    if (toast) toast.classList.remove("show");
-  });
+  function showToast() {
+    var toast = document.getElementById("pwa-toast");
+    if (!toast || wasRecentlyDismissed()) return;
+    toast.classList.add("show");
+  }
+
+  function hideToast() {
+    var toast = document.getElementById("pwa-toast");
+    if (!toast) return;
+    toast.classList.remove("show");
+  }
+
+  function initInstallFlow() {
+    window.addEventListener("beforeinstallprompt", function (event) {
+      event.preventDefault();
+      deferredPrompt = event;
+      showToast();
+    });
+
+    document.addEventListener("DOMContentLoaded", function () {
+      var installBtn = document.getElementById("pwa-install-btn");
+      var dismissBtn = document.getElementById("pwa-dismiss-btn");
+
+      if (installBtn) {
+        installBtn.addEventListener("click", function () {
+          hideToast();
+          if (!deferredPrompt) return;
+          deferredPrompt.prompt();
+          deferredPrompt.userChoice.finally(function () {
+            deferredPrompt = null;
+          });
+        });
+      }
+
+      if (dismissBtn) {
+        dismissBtn.addEventListener("click", function () {
+          hideToast();
+          markDismissed();
+        });
+      }
+    });
+
+    window.addEventListener("appinstalled", function () {
+      hideToast();
+      deferredPrompt = null;
+    });
+  }
+
+  registerServiceWorker();
+  initInstallFlow();
 })();
