@@ -1,38 +1,43 @@
-"use strict";
+const { getRedis } = require("../../lib/redis");
 
-var redis = require("../../lib/redis");
-var cookies = require("../../lib/cookies");
-
-var SESSION_COOKIE = "klipin_admin_session";
-
-function sendJson(res, status, payload) {
-  res.setHeader("Content-Type", "application/json; charset=utf-8");
-  res.statusCode = status;
-  res.end(JSON.stringify(payload));
+function parseCookies(req) {
+  const header = req.headers.cookie;
+  const out = {};
+  if (!header) return out;
+  header.split(";").forEach((pair) => {
+    const idx = pair.indexOf("=");
+    if (idx === -1) return;
+    const key = pair.slice(0, idx).trim();
+    const val = pair.slice(idx + 1).trim();
+    out[key] = decodeURIComponent(val);
+  });
+  return out;
 }
 
 module.exports = async function handler(req, res) {
-  res.setHeader("X-Content-Type-Options", "nosniff");
-
   if (req.method !== "GET") {
-    return sendJson(res, 405, { ok: false, message: "METODE TIDAK DIIZINKAN." });
+    return res.status(405).json({ success: false, error: "METHOD_NOT_ALLOWED" });
   }
 
-  var jar = cookies.parseCookies(req);
-  var token = jar[SESSION_COOKIE];
+  const cookies = parseCookies(req);
+  const token = cookies.klipin_session;
+
   if (!token) {
-    return sendJson(res, 200, { ok: false });
+    return res.status(401).json({ success: false, valid: false });
   }
 
-  if (!redis.isConfigured()) {
-    return sendJson(res, 200, { ok: false });
+  const redis = getRedis();
+  if (!redis) {
+    return res.status(503).json({ success: false, error: "SESSION_STORE_UNAVAILABLE" });
   }
 
   try {
-    var exists = await redis.get("admin:session:" + token);
-    return sendJson(res, 200, { ok: Boolean(exists) });
-  } catch (e) {
-    console.error("KLIPIN redis error (verify):", e && e.message);
-    return sendJson(res, 200, { ok: false });
+    const exists = await redis.get(`klipin:session:${token}`);
+    if (!exists) {
+      return res.status(401).json({ success: false, valid: false });
+    }
+    return res.status(200).json({ success: true, valid: true });
+  } catch (err) {
+    return res.status(503).json({ success: false, error: "SESSION_STORE_UNAVAILABLE" });
   }
 };

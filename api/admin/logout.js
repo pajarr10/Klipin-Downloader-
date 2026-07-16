@@ -1,43 +1,40 @@
-"use strict";
+const { getRedis } = require("../../lib/redis");
 
-var redis = require("../../lib/redis");
-var cookies = require("../../lib/cookies");
-
-var SESSION_COOKIE = "klipin_admin_session";
-
-function sendJson(res, status, payload) {
-  res.setHeader("Content-Type", "application/json; charset=utf-8");
-  res.statusCode = status;
-  res.end(JSON.stringify(payload));
+function parseCookies(req) {
+  const header = req.headers.cookie;
+  const out = {};
+  if (!header) return out;
+  header.split(";").forEach((pair) => {
+    const idx = pair.indexOf("=");
+    if (idx === -1) return;
+    const key = pair.slice(0, idx).trim();
+    const val = pair.slice(idx + 1).trim();
+    out[key] = decodeURIComponent(val);
+  });
+  return out;
 }
 
 module.exports = async function handler(req, res) {
-  res.setHeader("X-Content-Type-Options", "nosniff");
-
   if (req.method !== "POST") {
-    return sendJson(res, 405, { ok: false, message: "METODE TIDAK DIIZINKAN." });
+    return res.status(405).json({ success: false, error: "METHOD_NOT_ALLOWED" });
   }
 
-  var jar = cookies.parseCookies(req);
-  var token = jar[SESSION_COOKIE];
+  const cookies = parseCookies(req);
+  const token = cookies.klipin_session;
 
-  if (token && redis.isConfigured()) {
+  const redis = getRedis();
+  if (token && redis) {
     try {
-      await redis.del("admin:session:" + token);
-    } catch (e) {
-      console.error("KLIPIN redis error (logout):", e && e.message);
+      await redis.del(`klipin:session:${token}`);
+    } catch (err) {
+      // ignore, still clear cookie below
     }
   }
 
   res.setHeader(
     "Set-Cookie",
-    cookies.serializeCookie(SESSION_COOKIE, "", {
-      maxAge: 0,
-      httpOnly: true,
-      sameSite: "Lax",
-      secure: true
-    })
+    "klipin_session=; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=0"
   );
 
-  return sendJson(res, 200, { ok: true });
+  return res.status(200).json({ success: true });
 };
