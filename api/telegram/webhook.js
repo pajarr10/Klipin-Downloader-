@@ -43,7 +43,7 @@ async function handleCommand(command, chatId) {
       const redisOk = redis !== null;
       await sendTelegramMessage(
         chatId,
-        `[ KLIPIN STATUS ]\n\nREDIS       :: ${redisOk ? "CONNECTED" : "NOT CONFIGURED"}\nAPI         :: KYZZ (server-side only)\nMONITORING  :: ACTIVE`
+        `[ KLIPIN STATUS ]\n\nREDIS       :: ${redisOk ? "CONNECTED" : "NOT CONFIGURED"}\nAPI         :: CMNTY AIOV3 (server-side only)\nMONITORING  :: ACTIVE`
       );
       return;
     }
