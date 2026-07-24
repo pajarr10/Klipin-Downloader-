@@ -79,17 +79,21 @@
   }
 
   /* -------------------- Downloader -------------------- */
-  var PLATFORM_LABELS = {
-    tiktok: "TIKTOK",
-    youtube: "YOUTUBE",
-    instagram: "INSTAGRAM",
-    douyin: "DOUYIN",
-    pinterest: "PINTEREST",
-    facebook: "FACEBOOK",
-    capcut: "CAPCUT",
-    spotify: "SPOTIFY",
-    unknown: "MEDIA",
-  };
+  // Platform label is driven entirely by whatever "source" the API
+  // returns, so any of the 50+ platforms it supports renders correctly
+  // without needing a hardcoded per-platform list here.
+  function platformLabel(data) {
+    var raw = data.platformLabel || data.platform || "media";
+    return String(raw).toUpperCase();
+  }
+
+  function formatCount(n) {
+    if (typeof n !== "number" || !isFinite(n) || n < 0) return null;
+    if (n >= 1000000000) return (n / 1000000000).toFixed(1).replace(/\.0$/, "") + "B";
+    if (n >= 1000000) return (n / 1000000).toFixed(1).replace(/\.0$/, "") + "M";
+    if (n >= 1000) return (n / 1000).toFixed(1).replace(/\.0$/, "") + "K";
+    return String(n);
+  }
 
   function escapeForAttribute(str) {
     return String(str)
@@ -114,12 +118,39 @@
     }
   }
 
-  function formatDuration(ms) {
-    if (typeof ms !== "number" || ms <= 0) return null;
-    var totalSeconds = Math.round(ms / 1000);
-    var minutes = Math.floor(totalSeconds / 60);
-    var seconds = totalSeconds % 60;
-    return minutes + ":" + String(seconds).padStart(2, "0");
+  function buildMediaItem(media, tagText, buttonText) {
+    if (!media || !media.url || !isSafeMediaUrl(media.url)) return null;
+
+    var item = document.createElement("div");
+    item.className = "media-item";
+
+    var info = document.createElement("div");
+    info.className = "media-item-info";
+
+    var tag = document.createElement("div");
+    tag.className = "media-tag";
+    tag.textContent = tagText;
+    info.appendChild(tag);
+
+    var quality = document.createElement("div");
+    quality.className = "media-quality";
+    var qualityParts = [];
+    if (media.quality) qualityParts.push(String(media.quality).toUpperCase());
+    if (media.format) qualityParts.push(String(media.format).toUpperCase());
+    quality.textContent = qualityParts.join(" / ") || "ORIGINAL";
+    info.appendChild(quality);
+
+    item.appendChild(info);
+
+    var downloadLink = document.createElement("a");
+    downloadLink.className = "pixel-btn primary";
+    downloadLink.href = media.url;
+    downloadLink.target = "_blank";
+    downloadLink.rel = "noopener noreferrer";
+    downloadLink.textContent = buttonText || "UNDUH MEDIA \u2193";
+    item.appendChild(downloadLink);
+
+    return item;
   }
 
   function renderResult(data) {
@@ -158,77 +189,98 @@
     }
 
     var subParts = [];
-    subParts.push(PLATFORM_LABELS[data.platform] || PLATFORM_LABELS.unknown);
+    subParts.push(platformLabel(data));
     if (data.author) subParts.push(data.author);
-    var durationLabel = formatDuration(data.duration);
-    if (durationLabel) subParts.push(durationLabel);
+    if (data.duration) subParts.push(String(data.duration));
 
     var subEl = document.createElement("div");
     subEl.className = "result-sub";
     subEl.textContent = subParts.join(" // ");
     meta.appendChild(subEl);
 
+    var viewLabel = formatCount(data.viewCount);
+    var likeLabel = formatCount(data.likeCount);
+
+    if (viewLabel || likeLabel) {
+      var statsEl = document.createElement("div");
+      statsEl.className = "result-stats";
+      if (viewLabel) {
+        var viewStat = document.createElement("span");
+        viewStat.className = "result-stat";
+        viewStat.textContent = "\u25B6 " + viewLabel + " VIEWS";
+        statsEl.appendChild(viewStat);
+      }
+      if (likeLabel) {
+        var likeStat = document.createElement("span");
+        likeStat.className = "result-stat";
+        likeStat.textContent = "\u2665 " + likeLabel + " LIKES";
+        statsEl.appendChild(likeStat);
+      }
+      meta.appendChild(statsEl);
+    }
+
+    if (data.music) {
+      var musicEl = document.createElement("div");
+      musicEl.className = "result-sub";
+      musicEl.style.marginTop = "4px";
+      musicEl.textContent = "\u266A " + data.music;
+      meta.appendChild(musicEl);
+    }
+
     header.appendChild(meta);
     panel.appendChild(header);
 
-    var listWrap = document.createElement("div");
-    listWrap.className = "media-list";
+    var videos = Array.isArray(data.videos) ? data.videos : [];
+    var audios = Array.isArray(data.audios) ? data.audios : [];
+    var photos = Array.isArray(data.photos) ? data.photos : [];
 
-    var photoMedias = data.medias.filter(function (m) {
-      return m.type === "image" || m.type === "photo";
-    });
-    var otherMedias = data.medias.filter(function (m) {
-      return m.type !== "image" && m.type !== "photo";
-    });
+    if (videos.length > 0) {
+      var videoLabel = document.createElement("div");
+      videoLabel.className = "panel-label";
+      videoLabel.style.marginTop = "18px";
+      videoLabel.textContent = "[ VIDEO // " + String(videos.length).padStart(3, "0") + " ]";
+      panel.appendChild(videoLabel);
 
-    otherMedias.forEach(function (media, idx) {
-      if (!media.url || !isSafeMediaUrl(media.url)) return;
+      var videoList = document.createElement("div");
+      videoList.className = "media-list";
 
-      var item = document.createElement("div");
-      item.className = "media-item";
+      videos.forEach(function (media) {
+        var item = buildMediaItem(media, "VIDEO");
+        if (item) videoList.appendChild(item);
+      });
 
-      var info = document.createElement("div");
-      info.className = "media-item-info";
+      panel.appendChild(videoList);
+    }
 
-      var tag = document.createElement("div");
-      tag.className = "media-tag";
-      tag.textContent = (media.type || "MEDIA").toString().toUpperCase();
-      info.appendChild(tag);
+    if (audios.length > 0) {
+      var audioLabel = document.createElement("div");
+      audioLabel.className = "panel-label";
+      audioLabel.style.marginTop = "18px";
+      audioLabel.textContent = "[ AUDIO // " + String(audios.length).padStart(3, "0") + " ]";
+      panel.appendChild(audioLabel);
 
-      var quality = document.createElement("div");
-      quality.className = "media-quality";
-      var qualityParts = [];
-      if (media.quality) qualityParts.push(String(media.quality).toUpperCase());
-      if (media.extension) qualityParts.push(String(media.extension).toUpperCase());
-      quality.textContent = qualityParts.join(" / ") || "ORIGINAL";
-      info.appendChild(quality);
+      var audioList = document.createElement("div");
+      audioList.className = "media-list";
 
-      item.appendChild(info);
+      audios.forEach(function (media) {
+        var item = buildMediaItem(media, "AUDIO", "UNDUH AUDIO \u2193");
+        if (item) audioList.appendChild(item);
+      });
 
-      var downloadLink = document.createElement("a");
-      downloadLink.className = "pixel-btn primary";
-      downloadLink.href = media.url;
-      downloadLink.target = "_blank";
-      downloadLink.rel = "noopener noreferrer";
-      downloadLink.textContent = "UNDUH MEDIA \u2193";
-      item.appendChild(downloadLink);
+      panel.appendChild(audioList);
+    }
 
-      listWrap.appendChild(item);
-    });
-
-    panel.appendChild(listWrap);
-
-    if (photoMedias.length > 0) {
+    if (photos.length > 0) {
       var photoLabel = document.createElement("div");
       photoLabel.className = "panel-label";
       photoLabel.style.marginTop = "18px";
-      photoLabel.textContent = "[ SLIDESHOW // " + String(photoMedias.length).padStart(3, "0") + " ]";
+      photoLabel.textContent = "[ FOTO // " + String(photos.length).padStart(3, "0") + " ]";
       panel.appendChild(photoLabel);
 
       var grid = document.createElement("div");
       grid.className = "photo-grid";
 
-      photoMedias.forEach(function (media) {
+      photos.forEach(function (media) {
         if (!media.url || !isSafeMediaUrl(media.url)) return;
         var a = document.createElement("a");
         a.href = media.url;
@@ -236,7 +288,7 @@
         a.rel = "noopener noreferrer";
 
         var img = document.createElement("img");
-        img.src = media.url;
+        img.src = media.thumbnail && isSafeMediaUrl(media.thumbnail) ? media.thumbnail : media.url;
         img.alt = "";
         img.loading = "lazy";
         img.referrerPolicy = "no-referrer";
